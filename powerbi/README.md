@@ -108,26 +108,69 @@ The Power BI solution consists of **3 main pages**:
 
 ## Calculated Measures (DAX)
 
-Add these measures to enhance your dashboards:
+**Important**: When importing CSV files, Power BI names tables after the filename. 
+- If you import `transactions.csv`, the table will be named `transactions` (lowercase)
+- Adjust the table name in the measures below if your table has a different name
+
+**To check your table name**: Look in the **Fields** pane on the right side of Power BI Desktop.
+
+**To create a measure**: 
+1. Right-click on your **transactions** table in the Fields pane
+2. Select **"New measure"**
+3. Paste the DAX code below
+4. Name the measure exactly as shown (e.g., "Total Deposits")
+
+---
+
+### Step 1: Create Base Measures First
+
+Create these measures **one at a time** in this order:
 
 ```dax
-// Total Deposits
+// Measure 1: Total Deposits
 Total Deposits = 
 CALCULATE(
     SUM(transactions[amount]),
     transactions[type] = "deposit"
 )
+```
 
-// Total Withdrawals
+```dax
+// Measure 2: Total Withdrawals
 Total Withdrawals = 
 CALCULATE(
     SUM(transactions[amount]),
     transactions[type] = "withdrawal"
 )
+```
 
-// Net Flow
-Net Flow = [Total Deposits] - [Total Withdrawals]
+**Verify these work** by dragging them to a card visual before proceeding.
 
+---
+
+### Step 2: Create Dependent Measures
+
+**Only create these AFTER the above measures are working:**
+
+```dax
+// Measure 3: Net Flow (depends on Total Deposits and Total Withdrawals)
+Net Flow = 
+[Total Deposits] - [Total Withdrawals]
+```
+
+**If you still get an error**, use this alternative syntax:
+
+```dax
+Net Flow = 
+CALCULATE(SUM(transactions[amount]), transactions[type] = "deposit") - 
+CALCULATE(SUM(transactions[amount]), transactions[type] = "withdrawal")
+```
+
+---
+
+### Step 3: Additional Measures
+
+```dax
 // Risky Transaction Count
 Risky Transaction Count = 
 CALCULATE(
@@ -136,11 +179,48 @@ CALCULATE(
 )
 
 // Average Transaction Amount
-Avg Transaction Amount = AVERAGE(transactions[amount])
+Avg Transaction Amount = 
+AVERAGE(transactions[amount])
 
 // Transaction Count
-Transaction Count = COUNTROWS(transactions)
+Transaction Count = 
+COUNTROWS(transactions)
+
+// Total Transaction Volume
+Total Transaction Volume = 
+SUM(transactions[amount])
 ```
+
+---
+
+### Troubleshooting Common Errors
+
+**Error: "The value for 'Total Deposits' cannot be determined"**
+
+**Solution 1**: Make sure you created `Total Deposits` measure first and it appears in the Fields pane.
+
+**Solution 2**: Check your table name. If Power BI named it differently:
+- Look in Fields pane for your transactions table name
+- Replace `transactions` in the DAX with your actual table name
+- Common variations: `Transactions`, `transactions`, `Transaction`, `transaction`
+
+**Solution 3**: Use explicit table reference in Net Flow:
+```dax
+Net Flow = 
+CALCULATE(SUM(transactions[amount]), transactions[type] = "deposit") - 
+CALCULATE(SUM(transactions[amount]), transactions[type] = "withdrawal")
+```
+
+**Error: "column doesn't exist"**
+
+- Check column names in your table (they should be lowercase: `amount`, `type`, `risk_flag`)
+- In Power BI, go to **Transform Data** → Check column names
+- Column names must match exactly (case-sensitive in some contexts)
+
+**Error: "A single value for column 'amount' cannot be determined"**
+
+- Make sure you're creating a **Measure**, not a **Calculated Column**
+- Right-click on table → **"New measure"** (not "New column")
 
 ---
 
@@ -172,6 +252,30 @@ Transaction Count = COUNTROWS(transactions)
 3. **Export to PDF** for portfolio documentation
 
 ---
+
+## Visualization Guides
+
+### 📊 Main Visualization Guide
+**[VISUALIZATION_GUIDE.md](VISUALIZATION_GUIDE.md)** - Complete step-by-step instructions for all 3 dashboards:
+- **Executive Overview**: KPI cards, trend charts, pie charts, filters
+- **Branch Performance**: Rankings, comparisons, maps, metrics tables
+- **Risk Monitoring**: Detailed tables, trends, distributions, summary cards
+
+Each section includes:
+- Exact visual types to use
+- Field mappings
+- Formatting specifications
+- Color schemes
+- Layout recommendations
+
+### 📈 Additional Measures
+**[ADDITIONAL_MEASURES.md](ADDITIONAL_MEASURES.md)** - Advanced DAX measures for enhanced analytics:
+- Customer & Account measures
+- Time-based analysis (MoM, YoY, trends)
+- Risk analysis measures
+- Branch performance rankings
+- Percentage and ratio calculations
+- Conditional formatting helpers
 
 ## Screenshots
 

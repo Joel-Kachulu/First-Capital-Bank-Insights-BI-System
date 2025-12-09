@@ -205,8 +205,6 @@ The `sql/03_kpi_queries.sql` file contains comprehensive analytics queries:
 
 ## 📸 Dashboard Screenshots
 
-*[Add screenshots of your Power BI dashboards here]*
-
 ### Executive Overview
 ![Executive Overview](powerbi/executive_overview.png)
 
